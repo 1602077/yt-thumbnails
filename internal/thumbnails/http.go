@@ -6,11 +6,13 @@ import (
 	"net/url"
 	"os"
 	"path"
+
+	logger "github.com/1602077/thumbnails/internal"
 )
 
 // HttpThumbnailDownloader downloads thumbnails over HTTP.
 type HttpThumbnailDownloader struct {
-	*ThumbnailDownloaderConfig
+	Config *ThumbnailDownloaderConfig
 }
 
 type ThumbnailDownloaderConfig struct {
@@ -23,6 +25,12 @@ func (h *HttpThumbnailDownloader) GetThumbnail(thumbnailURL url.URL, filename st
 	if filename == "" {
 		return ErrInvalidFilename
 	}
+
+	logger.Debug(
+		"requesting download of thumbnail",
+		"url", thumbnailURL.String(),
+		"filename", filename,
+	)
 
 	thumbnailToDownload, err := h.buildThumbnailURL(thumbnailURL)
 	if err != nil {
@@ -39,11 +47,11 @@ func (h *HttpThumbnailDownloader) GetThumbnail(thumbnailURL url.URL, filename st
 		return ErrFailedToDownloadImage
 	}
 
-	if err = os.MkdirAll(h.DownloadDirectory, os.ModePerm); err != nil {
+	if err = os.MkdirAll(h.Config.DownloadDirectory, os.ModePerm); err != nil {
 		return err
 	}
 
-	file, err := os.Create(path.Join(h.DownloadDirectory, filename))
+	file, err := os.Create(path.Join(h.Config.DownloadDirectory, filename))
 	if err != nil {
 		return err
 	}
@@ -59,7 +67,7 @@ func (h *HttpThumbnailDownloader) GetThumbnail(thumbnailURL url.URL, filename st
 func (h *HttpThumbnailDownloader) buildThumbnailURL(youtubeURL url.URL) (*url.URL, error) {
 	videoID := youtubeURL.Query().Get("v")
 
-	thumbnailURLStr, err := url.JoinPath(h.ThumbnailStem.String(), videoID, h.ThumbnailSuffix)
+	thumbnailURLStr, err := url.JoinPath(h.Config.ThumbnailStem.String(), videoID, h.Config.ThumbnailSuffix)
 	if err != nil {
 		return &url.URL{}, err
 	}
@@ -68,6 +76,9 @@ func (h *HttpThumbnailDownloader) buildThumbnailURL(youtubeURL url.URL) (*url.UR
 	if err != nil {
 		return &url.URL{}, err
 	}
-
+	logger.Debug(
+		"built thumbnail url",
+		"url", thumbnailURL.String(),
+	)
 	return thumbnailURL, nil
 }
