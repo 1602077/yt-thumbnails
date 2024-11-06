@@ -1,6 +1,7 @@
 package thumbnails
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -34,33 +35,58 @@ func (h *HttpThumbnailDownloader) GetThumbnail(thumbnailURL url.URL, filename st
 
 	thumbnailToDownload, err := h.buildThumbnailURL(thumbnailURL)
 	if err != nil {
+		logger.Error(
+			"failed to build thumbnail url",
+			"error", err,
+		)
 		return err
 	}
 
 	resp, err := http.Get(thumbnailToDownload.String())
 	if err != nil {
+		logger.Error(
+			"failed to download thumbnail",
+			"error", err,
+		)
 		return err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		logger.Error(
+			fmt.Sprintf("%v", ErrFailedToDownloadImage),
+			"status_code", resp.StatusCode,
+		)
 		return ErrFailedToDownloadImage
 	}
 
 	if err = os.MkdirAll(h.Config.DownloadDirectory, os.ModePerm); err != nil {
+		logger.Error(
+			"failed to create download directory",
+			"error", err,
+		)
 		return err
 	}
 
 	file, err := os.Create(path.Join(h.Config.DownloadDirectory, filename))
 	if err != nil {
+		logger.Error(
+			"failed to create download filename",
+			"error", err,
+		)
 		return err
 	}
 	defer file.Close()
 
 	if _, err := io.Copy(file, resp.Body); err != nil {
+		logger.Error(
+			"failed to write response to filename",
+			"error", err,
+		)
 		return err
 	}
 
+	logger.Info("thumbnail downloaded")
 	return nil
 }
 
@@ -76,6 +102,7 @@ func (h *HttpThumbnailDownloader) buildThumbnailURL(youtubeURL url.URL) (*url.UR
 	if err != nil {
 		return &url.URL{}, err
 	}
+
 	logger.Debug(
 		"built thumbnail url",
 		"url", thumbnailURL.String(),

@@ -62,3 +62,7 @@ func Debug(format string, a ...any) {
 func Info(format string, a ...any) {
 	zap.S().Infow(format, a...)
 }
+
+func Fatal(format string, a ...any) {
+	zap.S().Fatalw(format, a...)
+}
