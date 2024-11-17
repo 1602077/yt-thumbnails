@@ -8,7 +8,7 @@ import (
 	"os"
 	"path"
 
-	logger "github.com/1602077/thumbnails/internal"
+	"github.com/1602077/thumbnails/pkg/logger"
 )
 
 // HttpThumbnailDownloader downloads thumbnails over HTTP.

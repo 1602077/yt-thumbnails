@@ -1,8 +1,8 @@
 package main
 
 import (
-	logger "github.com/1602077/thumbnails/internal"
 	"github.com/1602077/thumbnails/internal/cli"
+	"github.com/1602077/thumbnails/pkg/logger"
 )
 
 func main() {

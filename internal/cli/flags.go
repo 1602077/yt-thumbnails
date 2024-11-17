@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/url"
 
-	logger "github.com/1602077/thumbnails/internal"
 	"github.com/1602077/thumbnails/internal/thumbnails"
+	"github.com/1602077/thumbnails/pkg/logger"
 )
 
 var (
